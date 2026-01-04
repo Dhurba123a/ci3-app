@@ -1,28 +1,35 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+name: CI + CD Pipeline
+
 on:
   push:
     branches:
       - main
+
 jobs:
-  Explore-GitHub-Actions:
+  ci:
+    name: CI – Docker Build Validation
     runs-on: ubuntu-latest
-    environment: Deployment
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: CI Docker Build Validation
+      - name: Build Docker image (CI check)
         run: docker build -t ci3-app-test .
 
-      - name: Deploy to EC2 (Docker Compose)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{secrets.EC2_HOST}}
-          username: ${{secrets.EC2_USER}}
-          key: ${{secrets.EC2_SSH_KEY}}
-          script: |
-            cd /home/ubuntu/ci3-app/
-            git pull origin main
-            docker compose down
-            docker compose up -d --build
+  deploy:
+    name: CD – Deploy to EC2
+    needs: ci
+    runs-on: self-hosted
+    environment: Deployment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy application
+        run: |
+          cd /home/ubuntu/ci3-app
+          git pull origin main
+          docker compose up -d --build
+

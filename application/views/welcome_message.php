@@ -80,7 +80,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <div id="container">
 	<h1>Welcome to CodeIgniter, This is the code pushed from EC2 to Docker through Github Actions</h1>
+	<h3>Now There are Two Jobs : </h3>
+	<pre>
+GitHub push (main)
+      |
+      v
+CI job (GitHub VM)
+  - checkout
+  - docker build
+      |
+      v
+CD job (EC2 self-hosted)
+  - checkout
+  - docker compose up -d
 
+	</pre>
 </div>
 
 </body>
