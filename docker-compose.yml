@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    volumes:
+      # Mount source code for live debugging - changes reflect immediately
+      - .:/var/www/html
+      # Use named volume for vendor to persist dependencies
+      - vendor_data:/var/www/html/vendor
+      - /home/ubuntu/uploads:/var/www/html/uploads
+    ports:
+      - "8081:80"
+    env_file:
+      - .env
+    depends_on: 
+      - db
+    # Install composer dependencies on first run (if vendor is empty)
+    command: >
+      sh -c "
+      if [ ! -d vendor ] || [ ! -f vendor/autoload.php ]; then
+        echo 'Installing composer dependencies...';
+        composer install --no-dev --optimize-autoloader --no-scripts;
+      fi;
+      apache2-foreground
+      "
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ci3
+      MYSQL_USER: ci3
+      MYSQL_PASSWORD: ci3
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db          # service name of db container
+      PMA_PORT: 3306
+      PMA_USER: ci3         # optional: default login user
+      PMA_PASSWORD: ci3     # optional: default login password
+      # PMA_ARBITRARY: 1    # uncomment if you want to connect to any MySQL host manually
+    ports:
+      - "8082:80"
+
+volumes:
+  dbdata:
+  vendor_data:  # Named volume to persist composer dependencies
