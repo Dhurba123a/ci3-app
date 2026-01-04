@@ -7,6 +7,7 @@ on:
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
+    environment: Deployment
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -25,4 +26,3 @@ jobs:
             git pull origin main
             docker compose down
             docker compose up -d --build
-
