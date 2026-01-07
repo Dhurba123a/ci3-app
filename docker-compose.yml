@@ -3,19 +3,20 @@ version: "3.9"
 services:
   app:
     build: .
+    container_name: ${PROJECT_NAME}_app
     volumes:
-      # Mount source code for live debugging - changes reflect immediately
+      # Application source (acceptable for now; will be removed for prod later)
       - .:/var/www/html
-      # Use named volume for vendor to persist dependencies
+
+      # Composer dependencies (isolated per environment by project name)
       - vendor_data:/var/www/html/vendor
-      - /home/ubuntu/uploads:/var/www/html/uploads
+
+      # Uploads directory (environment-specific path)
+      - ${UPLOADS_PATH}:/var/www/html/uploads
     ports:
-      - "8081:80"
-    env_file:
-      - .env
-    depends_on: 
+      - "${APP_PORT}:80"
+    depends_on:
       - db
-    # Install composer dependencies on first run (if vendor is empty)
     command: >
       sh -c "
       if [ ! -d vendor ] || [ ! -f vendor/autoload.php ]; then
@@ -27,6 +28,7 @@ services:
 
   db:
     image: mysql:8.0
+    container_name: ${PROJECT_NAME}_db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -38,17 +40,16 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
+    container_name: ${PROJECT_NAME}_pma
     depends_on:
       - db
     environment:
-      PMA_HOST: db          # service name of db container
+      PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: ci3         # optional: default login user
-      PMA_PASSWORD: ci3     # optional: default login password
-      # PMA_ARBITRARY: 1    # uncomment if you want to connect to any MySQL host manually
     ports:
-      - "8082:80"
+      - "${PMA_PORT}:80"
 
 volumes:
   dbdata:
-  vendor_data:  # Named volume to persist composer dependencies
+  vendor_data:
+

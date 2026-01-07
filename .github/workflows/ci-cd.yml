@@ -1,0 +1,98 @@
+name: CI + CD Pipeline
+
+# ======================================================
+# TRIGGERS
+# ======================================================
+# - CI runs on PRs targeting dev-server
+# - CD runs on merges (push) into env branches
+# ======================================================
+
+on:
+  pull_request:
+    branches:
+      - dev-server
+
+  push:
+    branches:
+      - dev-server
+      - testing-server
+      - live-server
+
+# ======================================================
+# JOBS
+# ======================================================
+
+jobs:
+  # ------------------------------------------------------
+  # CI: Validate Docker build (no deployment)
+  # ------------------------------------------------------
+  ci:
+    name: CI – Docker Build Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Docker build (CI validation)
+        run: |
+          docker build -t ci3-app-ci .
+
+  # ------------------------------------------------------
+  # CD: Deploy to DEV (automatic)
+  # ------------------------------------------------------
+  deploy-dev:
+    name: Deploy to Dev
+    runs-on: self-hosted
+    needs: ci
+    if: github.ref == 'refs/heads/dev-server'
+    environment: dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Dev environment
+        run: |
+          cd /home/ubuntu/dev_server
+          git pull origin dev-server
+          docker compose up -d --build
+
+  # ------------------------------------------------------
+  # CD: Deploy to TESTING (automatic)
+  # ------------------------------------------------------
+  deploy-testing:
+    name: Deploy to Testing
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/testing-server'
+    environment: testing
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Testing environment
+        run: |
+          cd /home/ubuntu/testing_server
+          git pull origin testing-server
+          docker compose up -d --build
+
+  # ------------------------------------------------------
+  # CD: Deploy to PRODUCTION (manual approval)
+  # ------------------------------------------------------
+  deploy-production:
+    name: Deploy to Production
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/live-server'
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Production environment
+        run: |
+          cd /home/ubuntu/live_server
+          git pull origin live-server
+          docker compose up -d --build
+
