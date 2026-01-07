@@ -69,5 +69,5 @@ jobs:
 
 ```
 ##############
-Checking the updates, From dev-server branch
+Checking the updates, From dev-server branch after not allowing bypass of the rules
 ##############
