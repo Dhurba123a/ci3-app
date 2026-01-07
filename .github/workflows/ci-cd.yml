@@ -48,6 +48,12 @@ jobs:
     if: github.ref == 'refs/heads/dev-server'
     environment: dev
 
+    env:
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      APP_PORT: ${{ vars.APP_PORT }}
+      PMA_PORT: ${{ vars.PMA_PORT }}
+      UPLOADS_PATH: ${{ vars.UPLOADS_PATH }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,6 +73,12 @@ jobs:
     if: github.ref == 'refs/heads/testing-server'
     environment: testing
 
+    env:
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      APP_PORT: ${{ vars.APP_PORT }}
+      PMA_PORT: ${{ vars.PMA_PORT }}
+      UPLOADS_PATH: ${{ vars.UPLOADS_PATH }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -85,6 +97,12 @@ jobs:
     runs-on: self-hosted
     if: github.ref == 'refs/heads/live-server'
     environment: production
+
+    env:
+      PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+      APP_PORT: ${{ vars.APP_PORT }}
+      PMA_PORT: ${{ vars.PMA_PORT }}
+      UPLOADS_PATH: ${{ vars.UPLOADS_PATH }}
 
     steps:
       - name: Checkout repository
