@@ -69,5 +69,5 @@ jobs:
 
 ```
 ##############
-Checking the updates
+Checking the updates, From dev-server branch
 ##############
