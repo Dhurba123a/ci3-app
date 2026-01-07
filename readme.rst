@@ -68,4 +68,6 @@ jobs:
             docker compose up -d --build
 
 ```
-
+##############
+Checking the updates
+##############
